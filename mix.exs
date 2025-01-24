@@ -9,7 +9,8 @@ defmodule Redis.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      compilers: Mix.compilers() ++ [:surface]
     ]
   end
 
@@ -71,17 +72,16 @@ defmodule Redis.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
-      "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind redis", "esbuild redis"],
+      setup: ["deps.get", "assets.setup", "assets.build", "ecto.reset"],
+      "assets.build": ["cmd --cd assets npm run build", "esbuild default"],
+      "assets.setup": ["cmd --cd assets npm i", "cmd --cd deps/moon/assets npm i", "esbuild.install --if-missing"],
       "assets.deploy": [
-        "tailwind redis --minify",
-        "esbuild redis --minify",
-        "phx.digest"
-      ]
+        "assets.setup",
+        "assets.build",
+        "cmd --cd assets npm run deploy",
+        "esbuild default --minify",
+        "phx.digest"],
+      "ecto.reset": ["ecto.drop", "ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"]
     ]
   end
 end

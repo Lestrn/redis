@@ -4,12 +4,30 @@
 const plugin = require("tailwindcss/plugin")
 const fs = require("fs")
 const path = require("path")
+// assets/tailwind.config.js
+
+const tailwind_config = require("../deps/moon/assets/tailwind.config.js");
+
+tailwind_config.content = [
+  "../lib/**/*.ex",
+  "../lib/**/*.heex",
+  "../lib/**/*.eex",
+  "./js/**/*.js",
+
+  "../deps/moon/lib/**/*.ex",
+  "../deps/moon/lib/**/*.heex",
+  "../deps/moon/lib/**/*.eex",
+  "../deps/moon/assets/js/**/*.js",
+];
+module.exports = tailwind_config;
 
 module.exports = {
   content: [
     "./js/**/*.js",
     "../lib/redis_web.ex",
-    "../lib/redis_web/**/*.*ex"
+    "../lib/redis_web/**/*.*ex",
+    "../lib/redis_web/**/*.sface",
+    "../priv/catalogue/**/*.{ex,sface}"
   ],
   theme: {
     extend: {
