@@ -22,6 +22,9 @@ config :redis, RedisWeb.Endpoint,
   pubsub_server: Redis.PubSub,
   live_view: [signing_salt: "LkFkUmpt"]
 
+config :redis, :redis,
+  url: System.get_env("REDIS_URL") || "redis://localhost:6379"
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
