@@ -7,9 +7,22 @@ defmodule Redis.Repository.RedisRepo do
     Redix.command(:redix, ["SET", key, value])
   end
 
+  def update(old_key, new_key, value) do
+    Redix.command(:redix, ["RENAME", old_key, new_key])
+    Redix.command(:redix, ["SET", new_key, value])
+  end
+
   def fetch_data() do
-   {:ok, keys} = Redix.command(:redix, ["KEYS", "*"])
-    Enum.map(keys, fn key -> %{key: key, value:  Redix.command(:redix, ["GET", key]) |> extract_data_from_tuple()} end)
+    {:ok, keys} = Redix.command(:redix, ["KEYS", "*"])
+
+    Enum.map(keys, fn key ->
+      %{key: key, value: Redix.command(:redix, ["GET", key]) |> extract_data_from_tuple()}
+    end)
+  end
+
+  def get_field_by_key(key) do
+    Redix.command(:redix, ["GET", key])
+    |> extract_data_from_tuple()
   end
 
   def delete_data_by_key(key) do

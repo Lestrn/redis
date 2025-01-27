@@ -6,12 +6,21 @@ defmodule RedisWeb.PageHtml.TablePage do
   alias Redis.Repository.RedisRepo
 
   data(keep_insert_dialog_open, :boolean, default: false)
+  data(keep_change_dialog_open, :boolean, default: false)
+  data(old_key_name, :string, default: "")
+
+  data(form_insert_changeset, :any,
+    default: RedisSchema.changeset(%RedisSchema{key: nil, value: nil}, %{})
+  )
+
+  data(form_change_changeset, :any,
+    default: RedisSchema.changeset(%RedisSchema{key: nil, value: nil}, %{})
+  )
 
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> assign(fields: RedisRepo.fetch_data())
-     |> assign(form_changeset: RedisSchema.changeset(%RedisSchema{key: nil, value: nil}, %{}))}
+     |> assign(fields: RedisRepo.fetch_data())}
   end
 
   def handle_event("set_open_insert_dialog", _, socket) do
@@ -32,8 +41,8 @@ defmodule RedisWeb.PageHtml.TablePage do
     {:noreply,
      socket
      |> assign(
-       form_changeset:
-         socket.assigns.form_changeset.data
+       form_insert_changeset:
+         socket.assigns.form_insert_changeset.data
          |> RedisSchema.changeset(%{key: key, value: value})
          |> Map.put(:action, :insert)
      )}
@@ -42,12 +51,72 @@ defmodule RedisWeb.PageHtml.TablePage do
   def handle_event("submit_add", _params, socket) do
     Modal.close("insert_modal")
 
-    data = socket.assigns.form_changeset.changes
+    data = socket.assigns.form_insert_changeset.changes
     RedisRepo.insert(data.key, data.value)
 
     {:noreply,
      socket
      |> assign(keep_insert_dialog_open: false)
+     |> assign(fields: RedisRepo.fetch_data())}
+  end
+
+  def handle_event("set_open_change_dialog", %{"value" => key}, socket) do
+    Modal.open("change_modal")
+    value = RedisRepo.get_field_by_key(key)
+
+    {:noreply,
+     socket
+     |> assign(
+       form_change_changeset:
+         RedisSchema.changeset(%RedisSchema{key: nil, value: nil}, %{
+           "key" => key,
+           "value" => value
+         })
+     )
+     |> assign(keep_change_dialog_open: true)
+     |> assign(old_key_name: key)}
+  end
+
+  def handle_event(
+        "validate_change",
+        %{"redis_schema" => %{"key" => key, "value" => value}},
+        socket
+      ) do
+    {:noreply,
+     socket
+     |> assign(
+       form_change_changeset:
+         socket.assigns.form_change_changeset.data
+         |> RedisSchema.changeset(%{key: key, value: value})
+         |> Map.put(:action, :insert)
+     )}
+  end
+
+  def handle_event("set_close_change_dialog", _, socket) do
+    Modal.close("change_modal")
+    {:noreply, socket |> assign(keep_change_dialog_open: false)}
+  end
+
+  def handle_event("submit_update", _, socket) do
+    Modal.close("change_modal")
+    data = socket.assigns.form_change_changeset.changes
+
+    RedisRepo.update(socket.assigns.old_key_name, data.key, data.value)
+
+    {:noreply,
+     socket
+     |> assign(keep_change_dialog_open: false)
+     |> assign(fields: RedisRepo.fetch_data())}
+  end
+
+  def handle_event("submit_delete", _, socket) do
+    Modal.close("change_modal")
+
+    RedisRepo.delete_data_by_key(socket.assigns.form_change_changeset.changes.key)
+
+    {:noreply,
+     socket
+     |> assign(keep_change_dialog_open: false)
      |> assign(fields: RedisRepo.fetch_data())}
   end
 end
