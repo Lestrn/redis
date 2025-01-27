@@ -4,11 +4,12 @@ defmodule RedisWeb.PageHtml.TablePage do
   alias Moon.Design.Button
   alias Moon.Design.Table
   alias Moon.Design.Table.Column
+  alias Redis.Repository.RedisRepo
 
   def mount(_params, _session, socket) do
     {:ok, assign(
       socket,
-       fields: [%{key: "fff", value: 123}]
+       fields: RedisRepo.fetch_data()
     )}
   end
 end
