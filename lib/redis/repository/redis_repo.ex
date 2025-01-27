@@ -33,10 +33,18 @@ defmodule Redis.Repository.RedisRepo do
     Redix.command(:redix, ["FLUSHALL"])
   end
 
+  def key_exists?(key) do
+    {:ok, value} = Redix.command(:redix, ["EXISTS", key])
+    integer_to_boolean(value)
+  end
+
   defp extract_data_from_tuple(tuple) do
     case tuple do
       {:ok, data} -> data
       _ -> nil
     end
   end
+
+  def integer_to_boolean(0), do: false
+  def integer_to_boolean(_), do: true
 end

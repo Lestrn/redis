@@ -5,6 +5,7 @@ defmodule RedisWeb.PageHtml.TablePage do
   alias Redis.Schemas.RedisSchema
   alias Redis.Repository.RedisRepo
 
+  data(key_already_exists, :boolean, default: false)
   data(keep_insert_dialog_open, :boolean, default: false)
   data(keep_change_dialog_open, :boolean, default: false)
   data(old_key_name, :string, default: "")
@@ -30,7 +31,14 @@ defmodule RedisWeb.PageHtml.TablePage do
 
   def handle_event("set_close_insert_dialog", _, socket) do
     Modal.close("insert_modal")
-    {:noreply, socket |> assign(keep_insert_dialog_open: false)}
+
+    {:noreply,
+     socket
+     |> assign(
+       form_insert_changeset: RedisSchema.changeset(%RedisSchema{key: nil, value: nil}, %{})
+     )
+     |> assign(keep_insert_dialog_open: false)
+     |> assign(key_already_exists: false)}
   end
 
   def handle_event(
@@ -45,7 +53,8 @@ defmodule RedisWeb.PageHtml.TablePage do
          socket.assigns.form_insert_changeset.data
          |> RedisSchema.changeset(%{key: key, value: value})
          |> Map.put(:action, :insert)
-     )}
+     )
+     |> assign(key_already_exists: RedisRepo.key_exists?(key))}
   end
 
   def handle_event("submit_add", _params, socket) do
@@ -89,12 +98,22 @@ defmodule RedisWeb.PageHtml.TablePage do
          socket.assigns.form_change_changeset.data
          |> RedisSchema.changeset(%{key: key, value: value})
          |> Map.put(:action, :insert)
+     )
+     |> assign(
+       key_already_exists: RedisRepo.key_exists?(key) && key != socket.assigns.old_key_name
      )}
   end
 
   def handle_event("set_close_change_dialog", _, socket) do
     Modal.close("change_modal")
-    {:noreply, socket |> assign(keep_change_dialog_open: false)}
+
+    {:noreply,
+     socket
+     |> assign(
+       form_change_changeset: RedisSchema.changeset(%RedisSchema{key: nil, value: nil}, %{})
+     )
+     |> assign(keep_change_dialog_open: false)
+     |> assign(key_already_exists: false)}
   end
 
   def handle_event("submit_update", _, socket) do
@@ -112,7 +131,7 @@ defmodule RedisWeb.PageHtml.TablePage do
   def handle_event("submit_delete", _, socket) do
     Modal.close("change_modal")
 
-    RedisRepo.delete_data_by_key(socket.assigns.form_change_changeset.changes.key)
+    RedisRepo.delete_data_by_key(socket.assigns.old_key_name)
 
     {:noreply,
      socket
