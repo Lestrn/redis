@@ -1,2 +1,9 @@
-<div> Hello </div>
-<Button left_icon="generic_settings" size="xl">XL Button</Button>
+<Button class="mb-[20px]" variant="outline">Outline</Button>
+<Table items={field <- @fields} is_zebra_style>
+  <Column name="key" label="Key">
+    {field.key}
+  </Column>
+  <Column name="value" label="Value">
+    {field.value}
+  </Column>
+</Table>
