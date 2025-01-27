@@ -4,7 +4,8 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
-/* assets/css/app.css */
+
+/* This file is for your main application CSS */
 
 /*
   this is a default theme - used on surface.moon.io
@@ -20,5 +21,3 @@
   @import '../../deps/moon/assets/css/_components.css';
 */
 @import '../../deps/moon/assets/css/app.css';
-
-/* This file is for your main application CSS */

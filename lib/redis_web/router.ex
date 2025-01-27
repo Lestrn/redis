@@ -17,6 +17,8 @@ defmodule RedisWeb.Router do
   scope "/", RedisWeb do
     pipe_through :browser
 
+    live("/table", PageHtml.TablePage)
+
     get "/", PageController, :home
   end
 
