@@ -28,14 +28,14 @@
         >
           <Field field={:key} label="Key">
             <Input placeholder="Key" />
+            {#if @key_already_exists}
+              <p class="flex mt-2 text-chichi items-center gap-1 text-moon-12">Key already exists</p>
+            {/if}
           </Field>
           <Field field={:value} label="Value">
             <Input placeholder="Value" />
           </Field>
         </Form>
-        {#if @key_already_exists}
-          <p class="flex mt-2 text-chichi items-center gap-1 text-moon-12">Key already exists</p>
-        {/if}
       </div>
       <div class="flex justify-between p-4 border-t-2 border-beerus">
         <Button variant="outline" on_click="set_close_insert_dialog">Cancel</Button>
@@ -50,7 +50,7 @@
     <Modal.Panel>
       <div class="p-4 border-b-2 border-beerus">
         <h3 class="text-moon-18 text-bulma font-medium">
-          Add new field to redis
+          Update field
         </h3>
       </div>
       <div class="px-6 py-4">
@@ -62,14 +62,14 @@
         >
           <Field field={:key} label="Key">
             <Input placeholder="Key" />
+            {#if @key_already_exists}
+              <p class="flex mt-2 text-chichi items-center gap-1 text-moon-12">Key already exists</p>
+            {/if}
           </Field>
           <Field field={:value} label="Value">
             <Input placeholder="Value" />
           </Field>
         </Form>
-        {#if @key_already_exists}
-          <p class="flex mt-2 text-chichi items-center gap-1 text-moon-12">Key already exists</p>
-        {/if}
       </div>
       <div class="flex justify-between p-4 border-t-2 border-beerus">
         <Button variant="outline" on_click="set_close_change_dialog">Cancel</Button>
