@@ -65,6 +65,9 @@ defmodule RedisWeb.PageHtml.TablePage do
 
     {:noreply,
      socket
+     |> assign(
+       form_insert_changeset: RedisSchema.changeset(%RedisSchema{key: nil, value: nil}, %{})
+     )
      |> assign(keep_insert_dialog_open: false)
      |> assign(fields: RedisRepo.fetch_data())}
   end

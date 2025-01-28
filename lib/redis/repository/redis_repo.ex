@@ -1,52 +1,52 @@
 defmodule Redis.Repository.RedisRepo do
-  def test() do
-    Redix.command(:redix, ["PING"])
+  def test(conn \\ :redix) do
+    Redix.command(conn, ["PING"])
   end
 
-  def insert(key, value) do
+  def insert(key, value, conn \\ :redix) do
     case key_exists?(key) do
-      false -> Redix.command(:redix, ["SET", key, value])
+      false -> Redix.command(conn, ["SET", key, value])
       true -> {:error, :key_already_exists}
     end
   end
 
-  def update(old_key, new_key, value) do
+  def update(old_key, new_key, value, conn \\ :redix) do
     case validate_update(old_key, new_key) do
       {:ok, :keys_are_equal} ->
-        Redix.command(:redix, ["SET", new_key, value])
+        Redix.command(conn, ["SET", new_key, value])
 
       {:ok, :keys_are_different} ->
-        Redix.command(:redix, ["RENAME", old_key, new_key])
-        Redix.command(:redix, ["SET", new_key, value])
+        Redix.command(conn, ["RENAME", old_key, new_key])
+        Redix.command(conn, ["SET", new_key, value])
 
       {:error, error} ->
         {:error, error}
     end
   end
 
-  def fetch_data() do
-    {:ok, keys} = Redix.command(:redix, ["KEYS", "*"])
+  def fetch_data(conn \\ :redix) do
+    {:ok, keys} = Redix.command(conn, ["KEYS", "*"])
 
     Enum.map(keys, fn key ->
-      %{key: key, value: Redix.command(:redix, ["GET", key]) |> extract_data_from_tuple()}
+      %{key: key, value: Redix.command(conn, ["GET", key]) |> extract_data_from_tuple()}
     end)
   end
 
-  def get_field_by_key(key) do
-    Redix.command(:redix, ["GET", key])
+  def get_field_by_key(key, conn \\ :redix) do
+    Redix.command(conn, ["GET", key])
     |> extract_data_from_tuple()
   end
 
-  def delete_data_by_key(key) do
-    Redix.command(:redix, ["DEL", key])
+  def delete_data_by_key(key, conn \\ :redix) do
+    Redix.command(conn, ["DEL", key])
   end
 
-  def delete_all_data() do
-    Redix.command(:redix, ["FLUSHALL"])
+  def delete_all_data(conn \\ :redix) do
+    Redix.command(conn, ["FLUSHALL"])
   end
 
-  def key_exists?(key) do
-    {:ok, value} = Redix.command(:redix, ["EXISTS", key])
+  def key_exists?(key, conn \\ :redix) do
+    {:ok, value} = Redix.command(conn, ["EXISTS", key])
     integer_to_boolean(value)
   end
 
