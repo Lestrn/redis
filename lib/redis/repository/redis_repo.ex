@@ -4,12 +4,24 @@ defmodule Redis.Repository.RedisRepo do
   end
 
   def insert(key, value) do
-    Redix.command(:redix, ["SET", key, value])
+    case key_exists?(key) do
+      false -> Redix.command(:redix, ["SET", key, value])
+      true -> {:error, :key_already_exists}
+    end
   end
 
   def update(old_key, new_key, value) do
-    Redix.command(:redix, ["RENAME", old_key, new_key])
-    Redix.command(:redix, ["SET", new_key, value])
+    case validate_update(old_key, new_key) do
+      {:ok, :keys_are_equal} ->
+        Redix.command(:redix, ["SET", new_key, value])
+
+      {:ok, :keys_are_different} ->
+        Redix.command(:redix, ["RENAME", old_key, new_key])
+        Redix.command(:redix, ["SET", new_key, value])
+
+      {:error, error} ->
+        {:error, error}
+    end
   end
 
   def fetch_data() do
@@ -45,6 +57,14 @@ defmodule Redis.Repository.RedisRepo do
     end
   end
 
-  def integer_to_boolean(0), do: false
-  def integer_to_boolean(_), do: true
+  defp integer_to_boolean(0), do: false
+  defp integer_to_boolean(_), do: true
+
+  defp validate_update(old_key, new_key) do
+    if(old_key == new_key) do
+      {:ok, :keys_are_equal}
+    else
+      (key_exists?(new_key) && {:error, :key_already_exists}) || {:ok, :keys_are_different}
+    end
+  end
 end
