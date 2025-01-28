@@ -12,7 +12,7 @@ defmodule Redis.Application do
       Redis.Repo,
       {DNSCluster, query: Application.get_env(:redis, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Redis.PubSub},
-      {Redix, host: "localhost", port: 6379, name: :redix},
+      {Redix, host: "localhost", port: 6380, name: :redix},
       # Start the Finch HTTP client for sending emails
       {Finch, name: Redis.Finch},
       # Start a worker by calling: Redis.Worker.start_link(arg)

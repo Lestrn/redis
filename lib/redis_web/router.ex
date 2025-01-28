@@ -17,9 +17,8 @@ defmodule RedisWeb.Router do
   scope "/", RedisWeb do
     pipe_through :browser
 
+    get "/", RedirectController, :to_table
     live("/table", PageHtml.TablePage)
-
-    get "/", PageController, :home
   end
 
   # Other scopes may use custom stacks.
