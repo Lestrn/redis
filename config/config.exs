@@ -22,6 +22,9 @@ config :redis, RedisWeb.Endpoint,
   pubsub_server: Redis.PubSub,
   live_view: [signing_salt: "LkFkUmpt"]
 
+config :redis, :redis,
+  url: System.get_env("REDIS_URL") || "redis://localhost:6379"
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
@@ -32,11 +35,21 @@ config :redis, RedisWeb.Endpoint,
 config :redis, Redis.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configure esbuild (the version is required)
+moon_config_path = "#{File.cwd!()}/deps/moon/config/surface.exs"
+
+if File.exists?("#{moon_config_path}") do
+    import_config(moon_config_path)
+  end
+
+
+config :surface, :components, [
+  # put here your app configs for surface
+]
+
 config :esbuild,
   version: "0.17.11",
   redis: [
-    args:
-      ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+    args: ~w(js/app.js --bundle --target=es2016 --outdir=../priv/static/assets),
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]

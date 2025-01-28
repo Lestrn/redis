@@ -9,7 +9,8 @@ defmodule Redis.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      compilers: Mix.compilers() ++ [:surface]
     ]
   end
 
@@ -36,7 +37,7 @@ defmodule Redis.MixProject do
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.10"},
       {:postgrex, ">= 0.0.0"},
-      {:phoenix_html, "~> 4.0"},
+      {:phoenix_html, "~> 3.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 0.20.2"},
       {:floki, ">= 0.30.0", only: :test},
@@ -57,7 +58,9 @@ defmodule Redis.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.2"}
+      {:bandit, "~> 1.2"},
+      {:redix, "~> 1.5"},
+      {:moon, git: "https://github.com/coingaming/moon.git"}
     ]
   end
 
@@ -69,17 +72,16 @@ defmodule Redis.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
-      "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind redis", "esbuild redis"],
+      setup: ["deps.get", "assets.setup", "assets.build", "ecto.reset"],
+      "assets.build": ["cmd --cd assets npm run build", "esbuild default"],
+      "assets.setup": ["cmd --cd assets npm i", "cmd --cd deps/moon/assets npm i", "esbuild.install --if-missing"],
       "assets.deploy": [
-        "tailwind redis --minify",
-        "esbuild redis --minify",
-        "phx.digest"
-      ]
+        "assets.setup",
+        "assets.build",
+        "cmd --cd assets npm run deploy",
+        "esbuild default --minify",
+        "phx.digest"],
+      "ecto.reset": ["ecto.drop", "ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"]
     ]
   end
 end
