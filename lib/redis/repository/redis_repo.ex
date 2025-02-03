@@ -11,7 +11,7 @@ defmodule Redis.Repository.RedisRepo do
   end
 
   def update(old_key, new_key, value, conn \\ :redix) do
-    case validate_update(old_key, new_key) do
+    case validate_update(old_key, new_key, conn) do
       {:ok, :keys_are_equal} ->
         Redix.command(conn, ["SET", new_key, value])
 
@@ -60,11 +60,11 @@ defmodule Redis.Repository.RedisRepo do
   defp integer_to_boolean(0), do: false
   defp integer_to_boolean(_), do: true
 
-  defp validate_update(old_key, new_key) do
+  defp validate_update(old_key, new_key, conn) do
     if(old_key == new_key) do
       {:ok, :keys_are_equal}
     else
-      (key_exists?(new_key) && {:error, :key_already_exists}) || {:ok, :keys_are_different}
+      (key_exists?(new_key, conn) && {:error, :key_already_exists}) || {:ok, :keys_are_different}
     end
   end
 end

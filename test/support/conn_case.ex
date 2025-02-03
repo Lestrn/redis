@@ -32,7 +32,7 @@ defmodule RedisWeb.ConnCase do
   end
 
   setup tags do
-    Redis.DataCase.setup_sandbox(tags)
+    #Redis.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end
