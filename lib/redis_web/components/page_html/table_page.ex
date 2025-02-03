@@ -106,9 +106,7 @@ defmodule RedisWeb.PageHtml.TablePage do
          |> RedisSchema.changeset(%{key: key, value: value}, false)
          |> Map.put(:action, :insert)
      )
-     |> assign(
-       key_already_exists: RedisRepo.key_exists?(key) && key != socket.assigns.old_key_name
-     )}
+     |> assign(key_already_exists: false)}
   end
 
   def handle_event("set_close_change_dialog", _, socket) do
@@ -124,16 +122,19 @@ defmodule RedisWeb.PageHtml.TablePage do
      |> assign(key_already_exists: false)}
   end
 
-  def handle_event("submit_update", _, socket) do
-    Modal.close("change_modal")
-    data = socket.assigns.form_change_changeset.changes
+  def handle_event(
+        "submit_update",
+        %{"redis_schema" => %{"key" => key, "value" => value}},
+        socket
+      ) do
+    validated_changeset = RedisSchema.changeset(%RedisSchema{key: key, value: value}, %{}, true)
+    key_exists = RedisRepo.key_exists?(key) && key != socket.assigns.old_key_name
 
-    RedisRepo.update(socket.assigns.old_key_name, data.key, data.value)
-
-    {:noreply,
-     socket
-     |> assign(keep_change_dialog_open: false)
-     |> assign(fields: RedisRepo.fetch_data())}
+    if(validated_changeset.valid? && !key_exists) do
+      {:noreply, submit_update(key, value, socket)}
+    else
+      {:noreply, cancel_update(validated_changeset, key_exists, socket)}
+    end
   end
 
   def handle_event("submit_delete", _, socket) do
@@ -165,4 +166,21 @@ defmodule RedisWeb.PageHtml.TablePage do
     |> assign(form_insert_changeset: validated_changeset)
     |> assign(key_already_exists: key_exists)
   end
+
+  defp submit_update(key, value, socket) do
+    Modal.close("change_modal")
+
+    RedisRepo.update(socket.assigns.old_key_name, key, value)
+
+    socket
+    |> assign(keep_change_dialog_open: false)
+    |> assign(fields: RedisRepo.fetch_data())
+  end
+
+  defp cancel_update(validated_changeset, key_exists, socket) do
+    socket
+    |> assign(form_change_changeset: validated_changeset)
+    |> assign(key_already_exists: key_exists)
+  end
+
 end

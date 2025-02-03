@@ -69,14 +69,14 @@
           <Field field={:value} label="Value">
             <Input placeholder="Value" />
           </Field>
+          <div class="flex justify-between p-4 border-t-2 border-beerus">
+            <Button variant="outline" on_click="set_close_change_dialog">Cancel</Button>
+            <div class="flex gap-3">
+              <Button on_click="submit_delete">Delete</Button>
+              <Button type="submit" disabled={!@form_change_changeset.valid? || @key_already_exists}>Update</Button>
+            </div>
+          </div>
         </Form>
-      </div>
-      <div class="flex justify-between p-4 border-t-2 border-beerus">
-        <Button variant="outline" on_click="set_close_change_dialog">Cancel</Button>
-        <div class="flex gap-3">
-          <Button on_click="submit_delete">Delete</Button>
-          <Button on_click="submit_update" disabled={!@form_change_changeset.valid? || @key_already_exists}>Update</Button>
-        </div>
       </div>
     </Modal.Panel>
   </Modal>
