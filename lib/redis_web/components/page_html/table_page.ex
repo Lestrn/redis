@@ -60,7 +60,8 @@ defmodule RedisWeb.PageHtml.TablePage do
 
   def handle_event("submit_add", %{"redis_schema" => %{"key" => key, "value" => value}}, socket) do
     validated_changeset =
-      RedisSchema.changeset(%RedisSchema{key: key, value: value, action: "insert"}, %{}, true)
+      RedisSchema.changeset(%RedisSchema{action: "insert"}, %{key: key, value: value}, true)
+      |> Map.put(:action, :insert)
 
     if(validated_changeset.valid?) do
       {:noreply, submit_add(key, value, socket)}
@@ -125,14 +126,13 @@ defmodule RedisWeb.PageHtml.TablePage do
     validated_changeset =
       RedisSchema.changeset(
         %RedisSchema{
-          key: key,
-          value: value,
           action: "change",
           old_key: socket.assigns.old_key_name
         },
-        %{},
+        %{key: key, value: value},
         true
       )
+      |> Map.put(:action, :insert)
 
     if(validated_changeset.valid?) do
       {:noreply, submit_update(key, value, socket)}
