@@ -21,7 +21,7 @@
       </div>
       <div class="px-6 py-4">
         <Form
-          id = "insert_form"
+          id="insert-form"
           for={@form_insert_changeset}
           change="validate_change_insert"
           submit="submit_add"
@@ -53,6 +53,7 @@
       </div>
       <div class="px-6 py-4">
         <Form
+          id="update-form"
           for={@form_change_changeset}
           change="validate_change"
           submit="submit_update"
