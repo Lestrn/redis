@@ -23,7 +23,7 @@
         <Form
           for={@form_insert_changeset}
           change="validate_change_insert"
-          submit="update_post"
+          submit="submit_add"
           class="flex flex-col gap-3"
         >
           <Field field={:key} label="Key">
@@ -35,11 +35,11 @@
           <Field field={:value} label="Value">
             <Input placeholder="Value" />
           </Field>
+          <div class="flex justify-between p-4 border-t-2 border-beerus">
+            <Button variant="outline" on_click="set_close_insert_dialog">Cancel</Button>
+            <Button type="submit" disabled={!@form_insert_changeset.valid? || @key_already_exists}>Add</Button>
+          </div>
         </Form>
-      </div>
-      <div class="flex justify-between p-4 border-t-2 border-beerus">
-        <Button variant="outline" on_click="set_close_insert_dialog">Cancel</Button>
-        <Button on_click="submit_add" disabled={!@form_insert_changeset.valid? || @key_already_exists}>Add</Button>
       </div>
     </Modal.Panel>
   </Modal>
@@ -57,7 +57,7 @@
         <Form
           for={@form_change_changeset}
           change="validate_change"
-          submit="update_post"
+          submit="submit_update"
           class="flex flex-col gap-3"
         >
           <Field field={:key} label="Key">
