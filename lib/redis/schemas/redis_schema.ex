@@ -22,6 +22,7 @@ defmodule Redis.Schemas.RedisSchema do
     |> validate_required([:key, :value])
     |> validate_length(:key, max: 15)
     |> validate_length(:value, max: 15)
+    |> IO.inspect()
     |> validate_key_doesnt_exist()
   end
 
