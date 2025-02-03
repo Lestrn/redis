@@ -5,7 +5,6 @@ defmodule RedisWeb.PageHtml.TablePage do
   alias Redis.Schemas.RedisSchema
   alias Redis.Repository.RedisRepo
 
-  data(key_already_exists, :boolean, default: false)
   data(keep_insert_dialog_open, :boolean, default: false)
   data(keep_change_dialog_open, :boolean, default: false)
   data(old_key_name, :string, default: "")
@@ -41,8 +40,7 @@ defmodule RedisWeb.PageHtml.TablePage do
        form_insert_changeset:
          RedisSchema.changeset(%RedisSchema{key: nil, value: nil}, %{}, false)
      )
-     |> assign(keep_insert_dialog_open: false)
-     |> assign(key_already_exists: false)}
+     |> assign(keep_insert_dialog_open: false)}
   end
 
   def handle_event(
@@ -57,18 +55,17 @@ defmodule RedisWeb.PageHtml.TablePage do
          socket.assigns.form_insert_changeset.data
          |> RedisSchema.changeset(%{key: key, value: value}, false)
          |> Map.put(:action, :insert)
-     )
-     |> assign(key_already_exists: false)}
+     )}
   end
 
   def handle_event("submit_add", %{"redis_schema" => %{"key" => key, "value" => value}}, socket) do
-    validated_changeset = RedisSchema.changeset(%RedisSchema{key: key, value: value}, %{}, true)
-    key_exists = RedisRepo.key_exists?(key)
+    validated_changeset =
+      RedisSchema.changeset(%RedisSchema{key: key, value: value, action: "insert"}, %{}, true)
 
-    if(validated_changeset.valid? && !key_exists) do
+    if(validated_changeset.valid?) do
       {:noreply, submit_add(key, value, socket)}
     else
-      {:noreply, cancel_add(validated_changeset, key_exists, socket)}
+      {:noreply, cancel_add(validated_changeset, socket)}
     end
   end
 
@@ -105,8 +102,7 @@ defmodule RedisWeb.PageHtml.TablePage do
          socket.assigns.form_change_changeset.data
          |> RedisSchema.changeset(%{key: key, value: value}, false)
          |> Map.put(:action, :insert)
-     )
-     |> assign(key_already_exists: false)}
+     )}
   end
 
   def handle_event("set_close_change_dialog", _, socket) do
@@ -118,8 +114,7 @@ defmodule RedisWeb.PageHtml.TablePage do
        form_change_changeset:
          RedisSchema.changeset(%RedisSchema{key: nil, value: nil}, %{}, false)
      )
-     |> assign(keep_change_dialog_open: false)
-     |> assign(key_already_exists: false)}
+     |> assign(keep_change_dialog_open: false)}
   end
 
   def handle_event(
@@ -127,13 +122,22 @@ defmodule RedisWeb.PageHtml.TablePage do
         %{"redis_schema" => %{"key" => key, "value" => value}},
         socket
       ) do
-    validated_changeset = RedisSchema.changeset(%RedisSchema{key: key, value: value}, %{}, true)
-    key_exists = RedisRepo.key_exists?(key) && key != socket.assigns.old_key_name
+    validated_changeset =
+      RedisSchema.changeset(
+        %RedisSchema{
+          key: key,
+          value: value,
+          action: "change",
+          old_key: socket.assigns.old_key_name
+        },
+        %{},
+        true
+      )
 
-    if(validated_changeset.valid? && !key_exists) do
+    if(validated_changeset.valid?) do
       {:noreply, submit_update(key, value, socket)}
     else
-      {:noreply, cancel_update(validated_changeset, key_exists, socket)}
+      {:noreply, cancel_update(validated_changeset, socket)}
     end
   end
 
@@ -157,14 +161,12 @@ defmodule RedisWeb.PageHtml.TablePage do
       form_insert_changeset: RedisSchema.changeset(%RedisSchema{key: nil, value: nil}, %{}, false)
     )
     |> assign(keep_insert_dialog_open: false)
-    |> assign(key_already_exists: false)
     |> assign(fields: RedisRepo.fetch_data())
   end
 
-  defp cancel_add(validated_changeset, key_exists, socket) do
+  defp cancel_add(validated_changeset, socket) do
     socket
     |> assign(form_insert_changeset: validated_changeset)
-    |> assign(key_already_exists: key_exists)
   end
 
   defp submit_update(key, value, socket) do
@@ -177,10 +179,8 @@ defmodule RedisWeb.PageHtml.TablePage do
     |> assign(fields: RedisRepo.fetch_data())
   end
 
-  defp cancel_update(validated_changeset, key_exists, socket) do
+  defp cancel_update(validated_changeset, socket) do
     socket
     |> assign(form_change_changeset: validated_changeset)
-    |> assign(key_already_exists: key_exists)
   end
-
 end
