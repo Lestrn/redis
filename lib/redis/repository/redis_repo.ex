@@ -4,7 +4,7 @@ defmodule Redis.Repository.RedisRepo do
   end
 
   def insert(key, value, conn \\ :redix) do
-    case key_exists?(key) do
+    case key_exists?(key, conn) do
       false -> Redix.command(conn, ["SET", key, value])
       true -> {:error, :key_already_exists}
     end

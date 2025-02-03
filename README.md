@@ -7,6 +7,6 @@ To start your Phoenix server:
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-https://github.com/user-attachments/assets/984fb01e-1714-40e2-a7bf-1c5c82f815e4
+https://github.com/user-attachments/assets/67a3ca8c-8bcd-4171-9fb6-1a10947645fc
 
 
