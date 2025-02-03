@@ -8,7 +8,7 @@
 import Config
 
 config :redis,
-  ecto_repos: [Redis.Repo],
+  #ecto_repos: [Redis.Repo],
   generators: [timestamp_type: :utc_datetime]
 
 # Configures the endpoint

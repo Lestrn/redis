@@ -1,6 +1,6 @@
 <Button class="mb-3" variant="outline" on_click="set_open_insert_dialog">Insert new data</Button>
 
-<Table items={field <- @fields} is_zebra_style row_gap="border-spacing-y-1">
+<Table id="redis-table" items={field <- @fields} is_zebra_style row_gap="border-spacing-y-1">
   <Column name="key" label="Key">
     {field.key}
   </Column>
@@ -21,25 +21,23 @@
       </div>
       <div class="px-6 py-4">
         <Form
+          id="insert-form"
           for={@form_insert_changeset}
           change="validate_change_insert"
-          submit="update_post"
+          submit="submit_add"
           class="flex flex-col gap-3"
         >
           <Field field={:key} label="Key">
             <Input placeholder="Key" />
-            {#if @key_already_exists}
-              <p class="flex mt-2 text-chichi items-center gap-1 text-moon-12">Key already exists</p>
-            {/if}
           </Field>
           <Field field={:value} label="Value">
             <Input placeholder="Value" />
           </Field>
+          <div class="flex justify-between p-4 border-t-2 border-beerus">
+            <Button variant="outline" on_click="set_close_insert_dialog">Cancel</Button>
+            <Button type="submit" disabled={!@form_insert_changeset.valid?}>Add</Button>
+          </div>
         </Form>
-      </div>
-      <div class="flex justify-between p-4 border-t-2 border-beerus">
-        <Button variant="outline" on_click="set_close_insert_dialog">Cancel</Button>
-        <Button on_click="submit_add" disabled={!@form_insert_changeset.valid? || @key_already_exists}>Add</Button>
       </div>
     </Modal.Panel>
   </Modal>
@@ -55,28 +53,26 @@
       </div>
       <div class="px-6 py-4">
         <Form
+          id="update-form"
           for={@form_change_changeset}
           change="validate_change"
-          submit="update_post"
+          submit="submit_update"
           class="flex flex-col gap-3"
         >
           <Field field={:key} label="Key">
             <Input placeholder="Key" />
-            {#if @key_already_exists}
-              <p class="flex mt-2 text-chichi items-center gap-1 text-moon-12">Key already exists</p>
-            {/if}
           </Field>
           <Field field={:value} label="Value">
             <Input placeholder="Value" />
           </Field>
+          <div class="flex justify-between p-4 border-t-2 border-beerus">
+            <Button variant="outline" on_click="set_close_change_dialog">Cancel</Button>
+            <div class="flex gap-3">
+              <Button on_click="submit_delete">Delete</Button>
+              <Button type="submit" disabled={!@form_change_changeset.valid?}>Update</Button>
+            </div>
+          </div>
         </Form>
-      </div>
-      <div class="flex justify-between p-4 border-t-2 border-beerus">
-        <Button variant="outline" on_click="set_close_change_dialog">Cancel</Button>
-        <div class="flex gap-3">
-          <Button on_click="submit_delete">Delete</Button>
-          <Button on_click="submit_update" disabled={!@form_change_changeset.valid? || @key_already_exists}>Update</Button>
-        </div>
       </div>
     </Modal.Panel>
   </Modal>
