@@ -1,5 +1,9 @@
 # Redis
 
+## Overview
+
+This project demonstrates how to integrate **Redis** with a **Phoenix (Elixir) application**. The application includes a page displaying a table of **key-value pairs stored in Redis**, along with functionality to **create, update, and delete keys** using buttons and modals.
+
 To start your Phoenix server:
   * Run `docker compose up` to start up redis
   * Run `mix setup` to install and setup dependencies
